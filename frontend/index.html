@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creative Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="app" id="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">Creative</div>
+    </div>
+
+    <button class="new-chat-btn" onclick="newChat()">
+      New
+    </button>
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="modeHome" onclick="setMode('home')">Home</button>
+      <button class="mode-btn" id="modeBiz" onclick="setMode('biz')">Business</button>
+    </div>
+
+    <div class="sidebar-section-label">Chats</div>
+
+    <div class="chat-item active" onclick="loadChat(0, this)">
+      <span class="chat-item-dot"></span>
+      Portrait idea
+    </div>
+
+    <div class="chat-item" onclick="loadChat(1, this)">
+      <span class="chat-item-dot"></span>
+      Moodboard
+    </div>
+
+    <div class="chat-item" onclick="loadChat(2, this)">
+      <span class="chat-item-dot"></span>
+      Story visuals
+    </div>
+
+    <div class="chat-item" onclick="loadChat(3, this)">
+      <span class="chat-item-dot"></span>
+      Poster concept
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="avatar"></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">My Workspace</div>
+
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="topbar-pills">
+          <button class="pill active" onclick="filterPill(this,'all')">All</button>
+          <button class="pill" onclick="filterPill(this,'art')">Art</button>
+          <button class="pill" onclick="filterPill(this,'poster')">Poster</button>
+          <button class="pill" onclick="filterPill(this,'video')">Video</button>
+        </div>
+
+        <button class="style-panel-trigger" onclick="togglePanel()">
+          Styles
+        </button>
+      </div>
+    </div>
+
+    <!-- MESSAGES -->
+    <div class="messages" id="messages"></div>
+
+    <!-- INPUT -->
+    <div class="input-area">
+      <div class="mood-bar">
+        <span class="mood-label">Calm</span>
+        <input
+          type="range"
+          min="0" max="100" value="40"
+          id="moodSlider"
+          oninput="updateMood(this.value)"
+        />
+        <span class="mood-label" id="moodRight">Energy</span>
+      </div>
+
+      <div class="input-portal" id="inputPortal">
+        <div class="input-row">
+          <button class="upload-btn" onclick="triggerUpload()">+</button>
+          <textarea
+            id="mainInput"
+            rows="1"
+            placeholder="Say something..."
+            onkeydown="handleKey(event)"
+            oninput="autoResize(this)"
+            onfocus="document.getElementById('inputPortal').classList.add('focused')"
+            onblur="document.getElementById('inputPortal').classList.remove('focused')"
+          ></textarea>
+          <button class="mic-btn" id="micBtn" onclick="toggleMic(this)">Mic</button>
+          <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
+        </div>
+
+        <div class="input-hints">
+          <span class="hint-chip" onclick="insertHint(this)">Art</span>
+          <span class="hint-chip" onclick="insertHint(this)">Moodboard</span>
+          <span class="hint-chip" onclick="insertHint(this)">Story</span>
+          <span class="hint-chip" onclick="insertHint(this)">Poster</span>
+        </div>
+      </div>
+
+      <input type="file" id="fileInput" style="display:none" accept="image/*" onchange="handleFileUpload(event)" />
+
+    </div>
+  </main>
+</div>
+
+<!-- STYLE PANEL -->
+<div class="style-panel" id="stylePanel">
+  <div class="panel-title">
+    Styles
+    <button class="close-panel" onclick="togglePanel()">×</button>
+  </div>
+
+  <div>
+    <div class="panel-section-label">Visual</div>
+    <div class="style-grid">
+      <div class="style-chip active" onclick="selectStyle(this)">Realistic</div>
+      <div class="style-chip" onclick="selectStyle(this)">Renaissance</div>
+      <div class="style-chip" onclick="selectStyle(this)">Anime</div>
+      <div class="style-chip" onclick="selectStyle(this)">Minimal</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="panel-section-label">Tone</div>
+    <div class="tone-btns">
+      <div class="tone-btn active" onclick="selectTone(this)">Dreamy</div>
+      <div class="tone-btn" onclick="selectTone(this)">Clean</div>
+      <div class="tone-btn" onclick="selectTone(this)">Playful</div>
+      <div class="tone-btn" onclick="selectTone(this)">Calm</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="panel-section-label">Count</div>
+    <div class="count-row">
+      <button class="count-btn" onclick="changeCount(-1)">−</button>
+      <div class="count-val" id="countVal">3</div>
+      <button class="count-btn" onclick="changeCount(1)">+</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- DRAG OVERLAY -->
+<div class="drag-overlay" id="dragOverlay">
+  <div class="drag-box">
+    <p>Drop image here</p>
+  </div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

@@ -37,17 +37,18 @@ def call_groq(prompt: str):
         "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json"
     }
+
     body = {
         "model": "llama3-8b-8192",
         "messages": [{"role": "user", "content": prompt}]
     }
 
     res = requests.post(url, headers=headers, json=body, timeout=10)
+
     if res.status_code == 200:
         return res.json()["choices"][0]["message"]["content"]
     else:
         raise Exception("Groq failed")
-
 
 def call_huggingface(prompt: str):
     url = "https://api-inference.huggingface.co/models/google/flan-t5-large"
@@ -55,6 +56,7 @@ def call_huggingface(prompt: str):
     headers = {
         "Authorization": f"Bearer {HF_API_KEY}"
     }
+
     res = requests.post(url, headers=headers, json={"inputs": prompt}, timeout=10)
     data = res.json()
 
@@ -64,12 +66,13 @@ def call_huggingface(prompt: str):
     if "error" in data:
         print("HF ERROR:", data["error"])
         raise Exception("HF failed")
-    return ""
 
+    return ""
 
 @app.post("/generate")
 def generate(data: GenerateRequest):
     prompt = data.prompt.strip()
+
     if not prompt:
         raise HTTPException(status_code=400, detail="prompt cannot be empty")
 
@@ -88,35 +91,31 @@ def generate(data: GenerateRequest):
 
     try:
         response = client.models.generate_content(
-            model="gemini-3.5-flash",
+            model="gemini-2.5-flash",
             contents=full_prompt
         )
         enhanced_prompt = (response.text or "").strip()
-        print("Gemini used")
-
+        print("✅ Gemini used")
     except Exception as e:
-        print("Gemini failed:", str(e))
-
+        print("❌ Gemini failed:", str(e))
 
     if not enhanced_prompt:
         try:
             enhanced_prompt = call_groq(full_prompt)
-            print("Groq used")
+            print("✅ Groq used")
         except Exception as e:
-            print("Groq failed:", str(e))
-
+            print("❌ Groq failed:", str(e))
 
     if not enhanced_prompt:
         try:
             enhanced_prompt = call_huggingface(full_prompt)
-            print("HuggingFace used")
+            print("✅ HuggingFace used")
         except Exception as e:
-            print("HuggingFace failed:", str(e))
-
+            print("❌ HuggingFace failed:", str(e))
 
     if not enhanced_prompt:
         enhanced_prompt = prompt
-        print("Fallback to original prompt")
+        print("⚠️ Fallback to original prompt")
 
     # generate images
     images = []
@@ -131,6 +130,7 @@ def generate(data: GenerateRequest):
         "message": reply_message,
         "images": images
     }
+
 
 @app.get("/health")
 def health():

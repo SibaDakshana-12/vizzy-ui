@@ -101,6 +101,7 @@ function addAIResponseFromAPI(data) {
       </div>
     </div>
   `;
+
   const allGrids = msgs.querySelectorAll('.img-grid');
   const grid = allGrids[allGrids.length - 1];
 
@@ -111,11 +112,44 @@ function addAIResponseFromAPI(data) {
       const card = document.createElement('div');
       card.className = 'art-card';
       card.onclick = function () { openImage(this); };
-      card.innerHTML = `<img src="${img.url}" />`;
       grid.appendChild(card);
-      scrollBottom();
-    }, i * 1500);
+
+      loadImageWithRetry(card, img.url, 0);
+    }, i * 5000);
   });
+}
+
+async function loadImageWithRetry(card, url, attempt) {
+  const maxAttempts = 5;
+
+  try {
+    const separator = url.includes('?') ? '&' : '?';
+    const res = await fetch(url + separator + 'retry=' + attempt);
+
+    if (!res.ok) {
+      throw new Error('Image request failed: ' + res.status);
+    }
+
+    const blob = await res.blob();
+    const objectUrl = URL.createObjectURL(blob);
+
+    const imgEl = document.createElement('img');
+    imgEl.src = objectUrl;
+
+    card.innerHTML = '';
+    card.appendChild(imgEl);
+    scrollBottom();
+
+  } catch (err) {
+    if (attempt < maxAttempts - 1) {
+      const delay = 4000 * Math.pow(2, attempt);
+      setTimeout(() => {
+        loadImageWithRetry(card, url, attempt + 1);
+      }, delay);
+    } else {
+      card.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:12px;text-align:center;padding:8px;">Image failed to load</div>';
+    }
+  }
 }
 
 function addErrorMessage() {
@@ -262,6 +296,9 @@ function insertHint(el) {
 }
 
 function openImage(el) {
+  const originalImg = el.querySelector('img');
+  if (!originalImg) return;
+
   const overlay = document.createElement('div');
 
   overlay.style.position = 'fixed';
@@ -272,7 +309,7 @@ function openImage(el) {
   overlay.style.justifyContent = 'center';
   overlay.style.zIndex = '200';
 
-  const img = el.querySelector('img').cloneNode();
+  const img = originalImg.cloneNode();
 
   img.style.maxWidth = '80%';
   img.style.maxHeight = '80%';

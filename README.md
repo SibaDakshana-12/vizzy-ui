@@ -9,7 +9,6 @@ HuggingFace as automatic fallbacks if Gemini is unavailable) and generates image
 - Frontend: https://vizzy-ui.vercel.app/
 - Backend: https://vizzy-ui.onrender.com
 
-> Replace the two URLs above with your actual deployed links.
 > Note: the backend is hosted on Render's free tier, which spins down after
 > 15 minutes of inactivity. If the app feels slow or unresponsive on first
 > load, give it 30-50 seconds to wake up and try again.
@@ -38,7 +37,11 @@ vizzy-ui/
    then HuggingFace, then finally just uses the original prompt as-is —
    so the request never crashes even if every AI provider is down.
 4. Backend builds image URLs using that enhanced prompt via Pollinations (free, no key needed).
-5. Backend returns a short reply message + the image URLs, which the frontend renders as cards.
+5. Backend returns a short reply message + the image URLs.
+6. The frontend loads each image one at a time (not all at once), and automatically
+   retries with increasing delays if Pollinations rate-limits a request — this means
+   generating multiple images can take 10-60+ seconds, especially under load, but
+   images reliably load instead of silently failing.
 
 ## Deployment
 
@@ -106,3 +109,9 @@ same — no build step needed.
   to a fresh empty chat; it doesn't store separate message history per chat.
 - Images are generated via Pollinations (free tier), not a paid image API —
   swap this out in `app.py` if you want a different image provider later.
+- Pollinations' free/anonymous tier rate-limits aggressively (`HTTP 429`).
+  The frontend handles this with staggered loading + exponential backoff
+  retries, so images load reliably but can take noticeably longer
+  (especially with 3-4 images in one response) than a typical instant
+  image API would. This is a deliberate reliability-over-speed tradeoff,
+  not a bug.

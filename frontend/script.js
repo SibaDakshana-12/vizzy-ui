@@ -51,7 +51,7 @@ function sendMessage(text) {
 }
 
 function callBackend(prompt) {
-  fetch("http://localhost:5000/generate", {
+  fetch("https://vizzy-ui.onrender.com/generate", {
     method: "POST",
     headers: {
         "Content-Type": "application/json"

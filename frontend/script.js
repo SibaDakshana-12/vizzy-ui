@@ -93,26 +93,29 @@ function addUserMessage(text) {
 function addAIResponseFromAPI(data) {
   const msgs = document.getElementById('messages');
 
-  let imagesHTML = '';
-  data.images.forEach(img => {
-    imagesHTML += `
-      <div class="art-card" onclick="openImage(this)">
-        <img src="${img.url}" />
-      </div>
-    `;
-  });
-
   msgs.innerHTML += `
     <div class="msg-row">
       <div class="bubble ai">
         ${escapeHtml(data.message)}
-        <div class="img-grid ${getGridClass()}">
-          ${imagesHTML}
-        </div>
+        <div class="img-grid ${getGridClass()}"></div>
       </div>
     </div>
   `;
+  const allGrids = msgs.querySelectorAll('.img-grid');
+  const grid = allGrids[allGrids.length - 1];
+
   scrollBottom();
+
+  data.images.forEach((img, i) => {
+    setTimeout(() => {
+      const card = document.createElement('div');
+      card.className = 'art-card';
+      card.onclick = function () { openImage(this); };
+      card.innerHTML = `<img src="${img.url}" />`;
+      grid.appendChild(card);
+      scrollBottom();
+    }, i * 1500);
+  });
 }
 
 function addErrorMessage() {

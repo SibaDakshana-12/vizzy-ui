@@ -30,35 +30,33 @@ vizzy-ui/
 
 ## How it works
 
-1. User types a message in the chat.
-2. Frontend sends the prompt + selected style/tone/count to the backend (`POST /generate`).
-3. Backend asks Gemini to turn that into a detailed image-generation prompt.
-   If Gemini fails or is overloaded, it automatically falls back to Groq,
-   then HuggingFace, then finally just uses the original prompt as-is —
-   so the request never crashes even if every AI provider is down.
-4. Backend builds image URLs using that enhanced prompt via Pollinations (free, no key needed).
-5. Backend returns a short reply message + the image URLs.
-6. The frontend loads each image one at a time (not all at once), and automatically
-   retries with increasing delays if Pollinations rate-limits a request — this means
-   generating multiple images can take 10-60+ seconds, especially under load, but
-   images reliably load instead of silently failing.
+1. User types a message in the chat (Home or Business mode).
+2. Frontend sends the prompt + full conversation history + style/tone/count to the backend.
+3. Backend detects the creative pathway: `art`, `story`, `poster`, or `moodboard`.
+4. Backend decides: is there enough context to generate, or should it ask one
+   clarifying question first? If vague, it returns a question. Once answered, it generates.
+5. Backend asks Gemini to build a detailed image prompt using the full conversation context.
+   Falls back automatically to Groq, then HuggingFace, then the original prompt as-is.
+6. Backend builds image URLs via Pollinations (free, no key needed) with random seeds.
+7. Frontend loads images one at a time with exponential backoff retry on 429s.
+
+## Creative pathways
+
+- **Art** — standard multi-image artwork generation
+- **Moodboard** — multi-image grid with varied compositions
+- **Story** — scene-by-scene storybook with captions per scene
+- **Poster** — single image with AI-generated headline and subtext overlaid
 
 ## Deployment
 
-- **Frontend** is deployed on [Vercel](https://vercel.com) as a static site
-  (the `frontend/` folder, no build step needed).
-- **Backend** is deployed on [Render](https://render.com) as a Python web
-  service, running `uvicorn app:app --host 0.0.0.0 --port $PORT`.
-- API keys (`GEMINI_API_KEY`, `GROQ_API_KEY`, `HF_API_KEY`) are set as
-  environment variables directly in Render's dashboard, not committed to the repo.
-- `script.js`'s `API_URL` points to the live Render backend URL in production
-  (instead of `http://localhost:5000` used during local development).
+- **Frontend** deployed on Vercel (static, no build step).
+- **Backend** deployed on Render as a Python web service:
+  `uvicorn app:app --host 0.0.0.0 --port $PORT`
+- API keys set as environment variables in Render dashboard.
 
-## Running it locally
+## Running locally
 
-(See the **Live demo** links above to try it without setting anything up.)
-
-### 1. Backend
+### Backend
 
 ```
 cd backend

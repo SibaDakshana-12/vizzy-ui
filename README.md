@@ -6,7 +6,7 @@ HuggingFace as automatic fallbacks if Gemini is unavailable) and generates image
 
 ## Live demo
 
-- Frontend: https://vizzy-ui-sibadakshana-12s-projects.vercel.app/
+- Frontend: https://vizzy-ui.vercel.app/
 - Backend: https://vizzy-ui.onrender.com
 
 > Replace the two URLs above with your actual deployed links.

@@ -67,7 +67,7 @@ function sendMessage(text) {
 function callBackend(prompt) {
   const historyToSend = conversationHistory.slice(0, -1);
 
-  fetch("http://localhost:5000/generate", {
+  fetch("https://vizzy-ui.onrender.com/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

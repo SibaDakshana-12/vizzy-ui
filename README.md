@@ -4,6 +4,16 @@ A conversational chat UI for generating AI images. Type a prompt, pick a style/t
 the app sends it to a backend that enhances the prompt (using Gemini, with Groq and
 HuggingFace as automatic fallbacks if Gemini is unavailable) and generates images.
 
+## Live demo
+
+- Frontend: https://vizzy-ui-sibadakshana-12s-projects.vercel.app/
+- Backend: https://vizzy-ui.onrender.com
+
+> Replace the two URLs above with your actual deployed links.
+> Note: the backend is hosted on Render's free tier, which spins down after
+> 15 minutes of inactivity. If the app feels slow or unresponsive on first
+> load, give it 30-50 seconds to wake up and try again.
+
 ## Project structure
 
 ```
@@ -30,7 +40,20 @@ vizzy-ui/
 4. Backend builds image URLs using that enhanced prompt via Pollinations (free, no key needed).
 5. Backend returns a short reply message + the image URLs, which the frontend renders as cards.
 
-## Running it
+## Deployment
+
+- **Frontend** is deployed on [Vercel](https://vercel.com) as a static site
+  (the `frontend/` folder, no build step needed).
+- **Backend** is deployed on [Render](https://render.com) as a Python web
+  service, running `uvicorn app:app --host 0.0.0.0 --port $PORT`.
+- API keys (`GEMINI_API_KEY`, `GROQ_API_KEY`, `HF_API_KEY`) are set as
+  environment variables directly in Render's dashboard, not committed to the repo.
+- `script.js`'s `API_URL` points to the live Render backend URL in production
+  (instead of `http://localhost:5000` used during local development).
+
+## Running it locally
+
+(See the **Live demo** links above to try it without setting anything up.)
 
 ### 1. Backend
 
